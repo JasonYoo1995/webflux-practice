@@ -1,1 +1,6 @@
 rootProject.name = 'demo'
+
+include 'SpringWebflux'
+include 'SpringMVC'
+include 'ReactorPractice'
+
