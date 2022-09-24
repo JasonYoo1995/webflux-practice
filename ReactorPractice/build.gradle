@@ -1,0 +1,18 @@
+plugins {
+    id 'java'
+}
+
+version '11'
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    implementation group: 'io.projectreactor', name: 'reactor-core', version: '3.4.22'
+
+}
+
+test {
+    useJUnitPlatform()
+}
