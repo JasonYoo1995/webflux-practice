@@ -1,4 +1,4 @@
-import org.reactivestreams.Publisher;
+import reactor.core.CorePublisher;
 import reactor.core.Disposable;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -10,9 +10,9 @@ public class ReactorPractice {
         System.out.println("==============================================================");
 //        practice1();
 //        practice2();
-//        practice3();
+        practice3();
 //        practice4();
-        practice5();
+//        practice5();
         System.out.println("==============================================================");
     }
 
@@ -76,7 +76,7 @@ public class ReactorPractice {
     }
 
     /**
-     * flatMap() : 구독하면서 flattening 시키기 (wrapping을 없애줌)
+     * wrapping과 flattening
      */
     static void practice3() {
         Flux<String> seq1 = Flux.just("0", "1", "2");
@@ -85,10 +85,10 @@ public class ReactorPractice {
 
         /** (1) 이어진 시퀀스의 모습 확인 (wrapping한 것을 또 wrapping한 상태) */
         System.out.println("------------(1)------------");
-        Flux<Publisher> mergedFlux = Flux.just(seq1, seq2, seq3); // Mono와 Flux는 모두 Publisher를 상속 받았음
+        Flux<CorePublisher<String>> mergedFlux = Flux.just(seq1, seq2, seq3);// Mono와 Flux는 둘 다 CorePublisher라는 인터페이스를 구현했음
         mergedFlux.log().subscribe();
         // log()를 통해 출력된 결과를 보면, mergedFlux는 [Flux, Mono, Flux] 형태임을 알 수 있음
-        // 즉, [ ["0", "1", "2"], "3", ["4", "5"] ] 형태임
+        // 즉, [ ["0", "1", "2"], ["3"], ["4", "5"] ] 형태임
 
         /** (2) 이어진 시퀀스의 모습 확인 (doOnXXX 이해하기) */
         System.out.println("------------(2)------------");
@@ -98,12 +98,37 @@ public class ReactorPractice {
         System.out.println("=======");
         mergedFlux.doOnComplete(() -> System.out.println("complete 이벤트 발생")).subscribe();
 
-        /** (3) 이어진 시퀀스을 flatten 시킨 시퀀스 */
+        /**
+         * (3) Flux.flatMap()의 동작 방식
+         * outer publisher는 유지하고, inner publisher를 flatten시킴
+         */
         System.out.println("------------(3)------------");
-        Flux<String> flattenedSequence = mergedFlux.flatMap(publisher -> publisher);
-        // flatten 된 시퀀스 = [ "0", "1", "2", "3", "4", "5" ] = Flux.just("0", "1", "2", "3", "4", "5")
-        // seq1, seq2, seq3을 각각 구독하면서 얻은 낱개의 element들을 flattenedSequence에 삽입
-        flattenedSequence.doOnNext(System.out::println).subscribe();
+
+        // wrapping을 2번 더 시켜 보자
+        Flux<Mono<Flux<CorePublisher<String>>>> nestedFlux = // [ [ [ ["0", "1", "2"], ["3"], ["4", "5"] ] ] ]
+                Flux.just(
+                        Mono.just(
+                                mergedFlux // [ ["0", "1", "2"], ["3"], ["4", "5"] ]
+                        )
+                );
+
+        // flatMap으로 wrapping을 1개씩 제거해보자
+        nestedFlux
+                .flatMap(mono -> {
+                    System.out.println("depth 1 : " + mono);
+                    return mono;
+                }) // [ [ ["0", "1", "2"], ["3"], ["4", "5"] ] ]
+                .flatMap(flux -> {
+                    System.out.println("depth 2 : " + flux);
+                    return flux;
+                }) // [ ["0", "1", "2"], ["3"], ["4", "5"] ]
+                .flatMap(fluxOrMono -> {
+                    System.out.println("depth 3 : " + fluxOrMono);
+                    return fluxOrMono;
+                }) // [ "0", "1", "2", "3", "4", "5" ]
+                .doOnNext(string -> {
+                    System.out.println("doOnNext() : " + string);
+                }).subscribe();
     }
 
     /**
@@ -135,7 +160,6 @@ public class ReactorPractice {
         System.out.println("firstInteger = " + firstInteger);
     }
 
-
     /**
      * subscribe()는 non-blocking이고
      * block()은 blocking이다
@@ -157,8 +181,8 @@ public class ReactorPractice {
         }
     }
 
-    static void printBySubscribe(){ // (4)-(1)-(2)-(3) 순으로 출력
-        Flux<String> fluxForSubscribe = Flux.just("                       (1)","                       (2)", "                       (3)");
+    static void printBySubscribe() { // (4)-(1)-(2)-(3) 순으로 출력
+        Flux<String> fluxForSubscribe = Flux.just("                       (1)", "                       (2)", "                       (3)");
         Disposable disposable = fluxForSubscribe
                 .delayElements(Duration.ofSeconds(2)) // 각 element마다 1초 동안의 delay 후에 consume 가능
                 .doOnNext(System.out::println)
@@ -166,7 +190,7 @@ public class ReactorPractice {
         System.out.println("                       (4) disposable = " + disposable);
     }
 
-    static void printByBlock(){ // <1>-<2>-<3>-<4> 순으로 출력
+    static void printByBlock() { // <1>-<2>-<3>-<4> 순으로 출력
         Flux<String> fluxForBlock = Flux.just("<1>", "<2>", "<3>");
         String lastString = fluxForBlock
                 .delayElements(Duration.ofSeconds(2)) // 각 element마다 1초 동안의 delay 후에 consume 가능

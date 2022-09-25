@@ -1,0 +1,171 @@
+{
+	"info": {
+		"_postman_id": "b779ab80-9f73-4c24-bd3f-3711c04b078a",
+		"name": "Webflux Practice",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Spring Webflux (localhost:80)",
+			"item": [
+				{
+					"name": "Get Product List",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "localhost:80/product/list",
+							"host": [
+								"localhost"
+							],
+							"port": "80",
+							"path": [
+								"product",
+								"list"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Product List Of Seller (RestTemplate)",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"user_id\": 0\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "localhost:80/user/registered-product/rest-template",
+							"host": [
+								"localhost"
+							],
+							"port": "80",
+							"path": [
+								"user",
+								"registered-product",
+								"rest-template"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Product List Of Seller (WebClient)",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"user_id\": 0\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "localhost:80/user/registered-product/web-client",
+							"host": [
+								"localhost"
+							],
+							"port": "80",
+							"path": [
+								"user",
+								"registered-product",
+								"web-client"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Spring MVC (localhost:81)",
+			"item": [
+				{
+					"name": "Get All Product",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "localhost:81/product/list",
+							"host": [
+								"localhost"
+							],
+							"port": "81",
+							"path": [
+								"product",
+								"list"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Product By Id",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"product_id\": 10\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "localhost:81/product/id",
+							"host": [
+								"localhost"
+							],
+							"port": "81",
+							"path": [
+								"product",
+								"id"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Product List Of Seller",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"user_id\": 0\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "localhost:81/user/registered-product",
+							"host": [
+								"localhost"
+							],
+							"port": "81",
+							"path": [
+								"user",
+								"registered-product"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	]
+}
